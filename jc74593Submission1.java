@@ -193,7 +193,7 @@ public class Main {
 				}
 				ladder.addAll(tempLadder);
 			}
-			//If end is not found 
+			//If end is not found try other paths on same level as past try
 			else{
 				for(int i = 0; i<newGuesses.size(); i++){
 					if(i != commonIndex){
@@ -212,15 +212,6 @@ public class Main {
 		
 		return ladder;
 	}
-	
-	/**
-	 * zeros zooid
-	 * backs drape
-	 * touts unban
-	 * trone trooz
-	 * brown alone
-	 * alpha trois
-	 */
 	
     public static ArrayList<String> getWordLadderBFS(String start, String end) {
 		
