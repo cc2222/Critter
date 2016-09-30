@@ -1,11 +1,12 @@
 /* WORD LADDER Main.java
  * EE422C Project 3 submission by
+ * Replace <...> with your actual data.
+ * Casey Cotter
+ * cbc2298
+ * 16445
  * Javier Cortes
  * jc74593
  * 16445
- * <Student2 Name>
- * <Student2 EID>
- * <Student2 5-digit Unique No.>
  * Slip days used: <0>
  * Git URL:
  * Fall 2016
@@ -20,10 +21,12 @@ public class Main {
 	
 	// static variables and constants only here.
 	static int rungs;
-	static Set<String> dict;
-	static ArrayList<String> userInput;
+	static ArrayList<String> userinput;
 	static ArrayList<String> ladder;
 	static ArrayList<String> guesses;
+	static Set<String> dict;
+	static Set<String> dictionary;
+	static String[] inputArray;
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -40,15 +43,14 @@ public class Main {
 		}
 		initialize();
 		// TODO methods to read in words, output ladder
-		userInput = parse(kb);
-		while(!userInput.isEmpty()){
-			//TODO: wordLadders
-			ladder = getWordLadderDFS(userInput.get(0), userInput.get(1));
-			//ladder = getWordLadderBFS(userInput.get(0), userInput.get(1));
+		userinput = parse(kb);
+		while(!userinput.isEmpty()){
+			//TODO wordLadders
+			//ladder = getWordLadderDFS(userinput.get(0), userinput.get(1));
+			ladder = getWordLadderBFS(userinput.get(0), userinput.get(1));
 			printLadder(ladder);
-			userInput = parse(kb);
+			userinput = parse(kb);
 			ladder.clear();
-			guesses.clear();
 		}
 	}
 	
@@ -56,8 +58,8 @@ public class Main {
 		// initialize your static variables or constants here.
 		// We will call this method before running our JUNIT tests.  So call it 
 		// only once at the start of main.
-		dict = makeDictionary();
 		guesses = new ArrayList<String>();
+		dict = makeDictionary();
 	}
 	
 	/**
@@ -66,168 +68,180 @@ public class Main {
 	 * If command is /quit, return empty ArrayList. 
 	 */
 	public static ArrayList<String> parse(Scanner keyboard) {
+		// TO DO
+		int index1 = 0;
+		int index2 = 0;
 		ArrayList<String> parseInput = new ArrayList<String>();
 		String input = keyboard.nextLine();
-		
 		if(input.equals("/quit")){
 			return parseInput;
 		}
-		
-		int index1 = 0;
-		for(int a = 0; a<input.length(); a++){
-			if(input.charAt(a) == ' '){
-				if(index1 == 0){
-					index1 = a;
-					a = input.length();
+		else{
+			for(int a = 0; a < input.length(); a++){
+				if(input.charAt(a) == ' '){
+						if(index1 == 0){
+							index1 = a;
+						}
 				}
-			}else if(input.charAt(a) == '	'){
-				if(index1 == 0){
-					index1 = a;
-					a = input.length();
+				if(index1 != 0 && input.charAt(a) != ' '){
+						index2 = a;
+						a = input.length();
 				}
 			}
+			input.
+			input = input.substring(0,index1+1) + input.substring(index2);
+			inputArray = input.split(" ");
+			parseInput.add(inputArray[0].toUpperCase());
+			parseInput.add(inputArray[1].toUpperCase());
 		}
-		input = input.replaceAll("\\s+", "");
-		
-		if(input.equals("")){
-			return parseInput;
-		}
-		
-		String[] inArray = new String[2];
-		inArray[0] = input.substring(0, index1);
-		inArray[1] = input.substring(index1);
-		parseInput.add(inArray[0].toUpperCase());
-		parseInput.add(inArray[1].toUpperCase());
-		
 		return parseInput;
 	}
 	
-	/**
-	 * Does a depth first search to find an N-rung word ladder between start and end
-	 * @param start: the start of the search
-	 * @param end: the conclusion of the search
-	 * @return the word ladder in order of the path taken
-	 */
 	public static ArrayList<String> getWordLadderDFS(String start, String end) {
-		ArrayList<String> ladder = new ArrayList<String>(); 	
-		ArrayList<String> newGuesses = new ArrayList<String>(); //Localized guesses for each recursive start
-		String newStart = start;
-		char [] startChar = start.toCharArray();
-		char [] endChar = end.toCharArray();
-		char tempChar;
-		char [] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
-		
-		int mostCommon = 0;
-		int commonIndex = -1;
-		
-		//add all guesses made, keeps track of all visited words
-		if(!guesses.contains(start)){
-			guesses.add(start);
-		}
-		
-		//base case: if the end word is reached return a non empty ladder containing the end word
+		ArrayList<String> ladder = new ArrayList<String>();
+		char[] startchars = start.toCharArray();
+		String newStart = String.valueOf(startchars);
+		char[] endchars = end.toCharArray();
+		char[] alphabet = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};  
+		char tempchar;
+		ladder.add(start);
 		if(start.equals(end)){
-			ladder.add(end);
 			return ladder;
 		}
-		
-		//Check all possible paths associated with a word, need to be in dict and needs to be a new guess
-		for(int b = 0; b < start.length(); b++){
-			for(int c = 0; c < alphabet.length; c++){
-				if(startChar[b] != alphabet[c]){
-					tempChar = startChar[b];
-					startChar[b] = alphabet[c];
-					newStart = String.valueOf(startChar);
-					if(dict.contains(newStart) && !newGuesses.contains(newStart) && !guesses.contains(newStart)){
-						newGuesses.add(newStart);
-						guesses.add(newStart);
+		for(int a = 0; a < start.length(); a++){
+			if(startchars[a] != endchars[a]){
+				tempchar = startchars[a];
+				startchars[a] = endchars[a];
+				newStart = String.valueOf(startchars);
+				if(dict.contains(newStart) && !guesses.contains(newStart)){
+					a = start.length();
+				}
+				else{
+					startchars[a] = tempchar;
+					newStart = String.valueOf(startchars);
+				}
+			}	
+		}
+		if(newStart.equals(start)){
+			for(int b = 0; b < start.length(); b++){
+				for(int c = 0; c < alphabet.length; c++){
+					if(startchars[b] != alphabet[c]){
+						tempchar = startchars[b];
+						startchars[b] = alphabet[c];
+						newStart = String.valueOf(startchars);
+						if(dict.contains(newStart) && !guesses.contains(newStart)){
+							c = alphabet.length;
+							b = start.length();
+						}
+						else{
+							startchars[b] = tempchar;
+							newStart = String.valueOf(startchars);
+						}
 					}
-					startChar[b] = tempChar;
 				}
 			}
 		}
-		
-		//Look for words in current list of paths that are close to the end
-		for(int i = 0; i<newGuesses.size(); i++){
-			int commonLetters = 0;
-			char[] currentGuess = newGuesses.get(i).toCharArray();
-			for(int j = 0; j<newGuesses.get(i).length(); j++){
-				if(currentGuess[j] == endChar[j]){
-					commonLetters++;
-				}
-			}
-			if(commonLetters > mostCommon){
-				mostCommon = commonLetters;
-				commonIndex = i;
-			}
-		}
-		
-		//If no new guesses exist for this path, return an empty ladder
-		if(newGuesses.isEmpty()){
+		if(guesses.contains(newStart)){
 			ArrayList<String> tempLadder = new ArrayList<String>();
 			return tempLadder;
 		}
-		
-		//If no word is found that is close to the end word start trying all paths associated
-		if(commonIndex == -1){
-			for(int i = 0; i<newGuesses.size(); i++){
-				ArrayList<String> branchLadder = getWordLadderDFS(newGuesses.get(i), end);
-				
-				//If ladder found should contain end and will allow merge of correct paths (value of start)
-				if(branchLadder.contains(end)){
-					if(!start.equals(end) && !branchLadder.contains(start)){
-						ladder.add(start);
-					}
-					ladder.addAll(branchLadder);
-				}
-			}
+		guesses.add(newStart);
+		ArrayList<String> tempLadder = getWordLadderDFS(newStart,end);
+		if(tempLadder.isEmpty()){
+			tempLadder = getWordLadderDFS(guesses.get(guesses.indexOf(start)), end);
 		}
-		//If word close to end is found go down that path and try to find correct path
-		else{
-			ArrayList<String> tempLadder = getWordLadderDFS(newGuesses.get(commonIndex), end);
-			
-			//If end found merge correct path values into ladder
-			if(tempLadder.contains(end)){
-				if(!start.equals(end) && !tempLadder.contains(start)){
-					ladder.add(start);
-				}
-				ladder.addAll(tempLadder);
-			}
-			//If end is not found 
-			else{
-				for(int i = 0; i<newGuesses.size(); i++){
-					if(i != commonIndex){
-						ArrayList<String> branchLadder = getWordLadderDFS(newGuesses.get(i), end);
-						if(branchLadder.contains(end)){
-							if(!start.equals(end) && !branchLadder.contains(start)){
-								ladder.add(start);
-							}
-						}
-						ladder.addAll(branchLadder);
-					}
-				}
-			}
-		}
-		
-		
+		ladder.addAll(tempLadder);
 		return ladder;
 	}
 	
-	/**
-	 * zeros zooid
-	 * backs drape
-	 * touts unban
-	 * trone trooz
-	 * brown alone
-	 * alpha trois
-	 */
-	
-    public static ArrayList<String> getWordLadderBFS(String start, String end) {
+	 public static ArrayList<String> getWordLadderBFS(String start, String end) {
+		//Create new dictionary for each BFS instance
+		 
+	 	dictionary = makeDictionary();
+	 	
+    	//Create a beginning ArrayList, add the start word
+	 
+    	ArrayList<String> begin = new ArrayList<String>();
+    	begin.add(start);
+    	
+    	//Create LinkedList for word ladder and add the first ArrayList
+    	
+		LinkedList<ArrayList<String>> queue = new LinkedList<ArrayList<String>>( );
+		queue.add(begin);
 		
-		// TODO some code
-		// TODO more code
+		//While queue contains at least one ArrayList
 		
-		return null; // replace this line later with real return
+		while(!queue.isEmpty()){
+			
+			//Remove the first ArrayList from the queue and pull out the last word
+			
+			ArrayList<String> ladder2 = queue.remove();
+			String word = ladder2.get(ladder2.size() - 1);
+			
+			//If word is the end word, you're done, return the ArrayList
+			
+			if(word.equals(end)){
+				return ladder2;
+			}
+			
+			//Convert the word to an array of characters
+			
+			char[] chars = word.toCharArray();
+			
+			//Look at all the possible 1 letter permutations of the word
+			
+			for(int i = 0; i < chars.length; i++){
+				
+				//Check every character of the alphabet at every position in the word to check for new valid words
+				
+				for(char alpha = 'A'; alpha < 'Z'; alpha++){
+					char temp = chars[i];
+					if(chars[i] != alpha){
+						chars[i] = alpha;
+					}
+					
+					//Check to see if the new word created is in the dictionary and not already in the ladder
+					
+					String newStart = new String(chars);
+					
+					if(dictionary.contains(newStart) && !ladder2.contains(newStart)){
+						
+						//If the word is valid and unused, create a copy of the current ladder and add the new word to it
+						
+						ArrayList<String> laddercopy = new ArrayList<String>();
+						laddercopy.addAll(ladder2);
+						laddercopy.add(newStart);
+						
+						//Remove the word from the dictionary so it wont be used again
+						
+						dictionary.remove(newStart);
+						
+						//Add the new ladder to the queue
+						
+						queue.add(laddercopy);
+					}
+					
+					//Put the temp char back into the original word
+					
+					chars[i] = temp;
+				}
+			}
+		}
+		
+		//If no path is found, check to see if it finds one in reverse, 
+		//if so, reverse that backwards ArrayList and return it
+		//otherwise, return an empty ArrayList
+		
+		ArrayList<String> backwards = getWordLadderBFS(userinput.get(1), userinput.get(0));
+		if(!backwards.isEmpty()){
+			ArrayList<String> reverse = new ArrayList<String>();
+			for(int a = backwards.size()-1; a >= 0; a--){
+				reverse.add(backwards.get(a));
+			}
+			return reverse;
+		}
+		ArrayList<String> empty = new ArrayList<String>();
+		return empty;
 	}
     
 	public static Set<String>  makeDictionary () {
@@ -248,14 +262,15 @@ public class Main {
 	
 	public static void printLadder(ArrayList<String> ladder) {
 		if(ladder.isEmpty()){
-			System.out.println("no word ladder can be found between " + userInput.get(0).toLowerCase() + " " + userInput.get(1).toLowerCase());
+			System.out.println("no word ladder can be found between " + userinput.get(0).toLowerCase() + " and " + userinput.get(1).toLowerCase());
 		}
 		else{
 			rungs = ladder.size() - 2;
-			System.out.println("a " + rungs + " rung word ladder exists between " + userInput.get(0).toLowerCase() + " and " + userInput.get(1).toLowerCase());
-			for(int i = 0; i < ladder.size(); i++){
-				System.out.println(ladder.get(i).toLowerCase());
+			System.out.println("a " + rungs + " rung ladder exists between " + userinput.get(0).toLowerCase() + " and " + userinput.get(1).toLowerCase());
+			for(int a = 0; a < ladder.size(); a++){
+				System.out.println(ladder.get(a).toLowerCase());
 			}
+			
 		}
 	}
 	// TODO
