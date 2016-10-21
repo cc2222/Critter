@@ -1,19 +1,24 @@
 /* CRITTERS Main.java
  * EE422C Project 4 submission by
  * Replace <...> with your actual data.
- * Casey Cotter
- * cbc2298
- * 16445
- * Max Fennis
- * maf3743
- * 16450
+ * <Casey Cotter>
+ * <cbc2298>
+ * <16445>
+ * <Max Fennis>
+ * <maf3743>
+ * <16450>
  * Slip days used: <0>
  * Fall 2016
  */
+
 package assignment4; // cannot be in default package
+
+//import all necessary files
 import java.util.*;
+import java.util.Scanner;
 import java.io.*;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
 
 /*
  * Usage: java <pkgname>.Main <input file> test
@@ -69,15 +74,21 @@ public class Main {
         /* Do not alter the code above for your submission. */
         /* Write your code below. */
         
+        //while playing...
         boolean play = true;
         while(play){
         	
+        	//print the command prompt
         	System.out.print("critter> ");
             
+        	//wait for the next line and put it in given
             String given = kb.nextLine();
+            
+            //split given into separate words in an ArrayList<String>
             List<String> inputs = new ArrayList<String>(Arrays.asList(given.split("\\s+")));
             String input = inputs.get(0);
                         
+            //check to see what the command is, print out correct errors if input is command is invalid or throws and exception
             if(input.equals("quit")){
                 if (inputs.size() == 1){
                 	 if(input.equals("quit")){
@@ -115,7 +126,11 @@ public class Main {
             				Critter.worldTimeStep();
             			}
                 	}
+            		catch(NumberFormatException e){
+            			System.out.println("error processing: " + given);
+                	}
                 	catch(Exception e){
+                		e.printStackTrace();
                 		System.out.println("error processing: " + given);
                 	}
                 }
@@ -128,6 +143,9 @@ public class Main {
             		try{
             			int numSeeds = Integer.parseInt(inputs.get(1));
             			Critter.setSeed((long)numSeeds);
+                	}
+            		catch(NumberFormatException e){
+            			System.out.println("error processing: " + given);
                 	}
                 	catch(Exception e){
                 		System.out.println("error processing: " + given);
@@ -161,13 +179,13 @@ public class Main {
             else if(input.equals("stats")){
             	if (inputs.size() == 2){
             		try{
-                		List<Critter> tempStats= Critter.getInstances(inputs.get(1));
-                		Class<?> classType = Class.forName("assignment4." + inputs.get(1));
-                		Constructor<?> newConstructor = classType.getConstructor();
-            			Object obj = newConstructor.newInstance();
-            			Critter newCritter = (Critter)obj;
-                		//Critter statCritter = tempStats.get(1);
-                		newCritter.runStats(tempStats);
+            			//get all instances of the desired critter type
+            			List<Critter> tempStats = Critter.getInstances(inputs.get(1));
+                		Class<?> classType = Class.forName("assignment4."+inputs.get(1));
+                		
+                		//get the correct runstats method for the desired critter type and call it
+                		Method method = classType.getMethod("runStats",List.class);
+                		method.invoke(classType,tempStats);
                 	}
                 	catch(Exception e){
                 		System.out.println("error processing: " + given);
@@ -178,12 +196,12 @@ public class Main {
                 }
             }
             else{
-            	System.out.println("invalid command: " + input);
+            	System.out.println("invalid command: " + given);
             }
             System.out.println();
         }
         
-        
+        /* Write your code above */
         System.out.flush();
 
     }
