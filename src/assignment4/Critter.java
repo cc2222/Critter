@@ -10,8 +10,10 @@
  * Slip days used: <0>
  * Fall 2016
  */
+
 package assignment4;
 
+//import necessary files
 import java.util.List;
 
 /* see the PDF for descriptions of the methods and fields in this class
@@ -25,6 +27,8 @@ import java.lang.reflect.Constructor;
 public abstract class Critter {
 	private static String myPackage;
 	private int dir;
+	
+	//the two fields used to hold the population of critters and their babies
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
 
@@ -52,6 +56,7 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 	
+	//walks one space in the given direction
 	protected final void walk(int direction) {
 		
 		switch(direction){
@@ -92,6 +97,7 @@ public abstract class Critter {
 		this.energy -= Params.walk_energy_cost;
 	}
 	
+	//walks two spaces in the given direction
 	protected final void run(int direction) {
 		
 		switch(direction){
@@ -132,6 +138,7 @@ public abstract class Critter {
 		this.energy -= Params.run_energy_cost;
 	}
 	
+	//checks to see if the critter has enough energy to reproduce, if so, it does
 	protected final void reproduce(Critter offspring, int direction) {
 		if(this.getEnergy() > Params.min_reproduce_energy){
 			dir = direction;
@@ -148,6 +155,7 @@ public abstract class Critter {
 	public abstract void doTimeStep();
 	public abstract boolean fight(String oponent);
 	
+	//clears all dead critters from the population
 	private static void clearDead(){
 		for(int a = 0; a < population.size(); a++){
 			if(population.get(a).getEnergy() <= 0){
@@ -170,16 +178,20 @@ public abstract class Critter {
 	 */
 	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
 		try{
+			//gets the Class of the desired critter types, then gets its constructor and creates a new instance of it
 			Class<?> cls = Class.forName("assignment4." + critter_class_name);
 			Constructor<?> newConstructor = cls.getConstructor();
 			Object obj = newConstructor.newInstance();
 			Critter newCritter = (Critter)obj;
+			
+			//sets the energy to start energy, gives it a random location, and adds it to the population
 			newCritter.energy = Params.start_energy;
 			newCritter.x_coord = Critter.getRandomInt(Params.world_width);
 			newCritter.y_coord = Critter.getRandomInt(Params.world_height);
 			population.add(newCritter);
 		}
 		catch(ClassNotFoundException e){
+			//if the given class type doesn't exist, throw an InvalidCritterException
 			throw new InvalidCritterException(critter_class_name);
 		}
 		catch(Exception e){
@@ -197,17 +209,24 @@ public abstract class Critter {
 	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
 		List<Critter> result = new java.util.ArrayList<Critter>();
 		try{
+			//gets the Class of the desired critter type, then gets its constructor and creates a new instance of it
 			Class<?> cls = Class.forName("assignment4."+critter_class_name);
 			Constructor<?> newConstructor = cls.getConstructor();
 			Object obj = newConstructor.newInstance();
 			Critter newCritter = (Critter)obj;
+			
+			//gets the toString of the desired critter type, and uses it to find all instances of that critter type in population
 			String crittertype = newCritter.toString();
 			for(int a = 0; a < population.size(); a++){
 				if(population.get(a).toString().equals(crittertype)){
 					result.add(population.get(a));
 				}
 			}
-		}		
+		}	
+		catch(ClassNotFoundException e){
+			//if the given class type doesn't exist, throw an InvalidCritterException
+			throw new InvalidCritterException(critter_class_name);
+		}
 		catch(Exception e){
 			
 		}
@@ -307,14 +326,21 @@ public abstract class Critter {
 		}
 	}
 	
+	//calls every critter's doTimeStep if they are alive, then deals with the encounters between critters
 	public static void worldTimeStep() {
+		//add all of the new critters to population
 		population.addAll(babies);
 		babies.clear();
+		
+		//call each critter's doTimeStep
 		for(int a = 0; a < population.size(); a++){
 			population.get(a).doTimeStep();
 		}
+		
+		//deal with all encounters caused by occupying the same space
 		for(int i = 0; i < population.size(); i++){
 			for(int j = 0; j < population.size(); j++){
+				//checks to see if two critters occupy the same space, if so, determines if they want to fight, and computes the result
 				if((population.get(i).x_coord == population.get(j).x_coord) && (population.get(i).y_coord == population.get(j).y_coord) && (i != j) && (population.get(i).energy > 0) && (population.get(j).energy > 0)){
 					boolean fightA = population.get(i).fight(population.get(j).toString());
 					boolean fightB = population.get(j).fight(population.get(i).toString());
@@ -337,7 +363,11 @@ public abstract class Critter {
 				}
 			}
 		}
+		
+		//clear all of the dead critters after the encounters happen
 		clearDead();
+		
+		//add the new Algae to the population
 		for(int b = 0; b < Params.refresh_algae_count; b++){
 			try{
 				makeCritter("Algae");
@@ -348,6 +378,7 @@ public abstract class Critter {
 		}	
 	}
 	
+	//prints out the world's grid and all of the critters contained within it
 	public static void displayWorld() {
 		int numCols = 2+Params.world_width;
 		int numRows = 2+Params.world_height;
@@ -394,5 +425,4 @@ public abstract class Critter {
 			System.out.println();
 		}
 	}
-
 }
