@@ -117,6 +117,9 @@ public class Main {
             				Critter.worldTimeStep();
             			}
                 	}
+            		catch(NumberFormatException e){
+            			System.out.println("error processing: " + given);
+                	}
                 	catch(Exception e){
                 		e.printStackTrace();
                 		System.out.println("error processing: " + given);
@@ -131,6 +134,9 @@ public class Main {
             		try{
             			int numSeeds = Integer.parseInt(inputs.get(1));
             			Critter.setSeed((long)numSeeds);
+                	}
+            		catch(NumberFormatException e){
+            			System.out.println("error processing: " + given);
                 	}
                 	catch(Exception e){
                 		System.out.println("error processing: " + given);
@@ -164,11 +170,10 @@ public class Main {
             else if(input.equals("stats")){
             	if (inputs.size() == 2){
             		try{
-            			
-            			List<Critter> tempStats= Critter.getInstances(inputs.get(1));
-                		Class<?> classType = tempStats.get(0).getClass();
+            			List<Critter> tempStats = Critter.getInstances(inputs.get(1));
+                		Class<?> classType = Class.forName("assignment4."+inputs.get(1));
                 		Method method = classType.getMethod("runStats",List.class);
-                		method.invoke(tempStats.get(0),tempStats);
+                		method.invoke(classType,tempStats);
                 	}
                 	catch(Exception e){
                 		System.out.println("error processing: " + given);
@@ -179,7 +184,7 @@ public class Main {
                 }
             }
             else{
-            	System.out.println("invalid command: " + input);
+            	System.out.println("invalid command: " + given);
             }
             System.out.println();
         }

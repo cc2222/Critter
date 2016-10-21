@@ -48,7 +48,6 @@ public abstract class Critter {
 	
 	private int energy = 0;
 	protected int getEnergy() { return energy; }
-	protected void setEnergy(int x) { energy = x; }
 	
 	private int x_coord;
 	private int y_coord;
@@ -149,7 +148,7 @@ public abstract class Critter {
 	public abstract void doTimeStep();
 	public abstract boolean fight(String oponent);
 	
-	public static void clearDead(){
+	private static void clearDead(){
 		for(int a = 0; a < population.size(); a++){
 			if(population.get(a).getEnergy() <= 0){
 				Critter temp = population.get(a);
@@ -176,13 +175,17 @@ public abstract class Critter {
 			Object obj = newConstructor.newInstance();
 			Critter newCritter = (Critter)obj;
 			newCritter.energy = Params.start_energy;
-			newCritter.x_coord = (int)(Math.random()*Params.world_width);
-			newCritter.y_coord = (int)(Math.random()*Params.world_height);
+			newCritter.x_coord = Critter.getRandomInt(Params.world_width);
+			newCritter.y_coord = Critter.getRandomInt(Params.world_height);
 			population.add(newCritter);
 		}
-		catch(Exception e){
-			System.out.println("Exception in makeCritter()");
+		catch(ClassNotFoundException e){
+			throw new InvalidCritterException(critter_class_name);
 		}
+		catch(Exception e){
+			
+		}
+		
 	}
 	
 	/**
@@ -204,10 +207,11 @@ public abstract class Critter {
 					result.add(population.get(a));
 				}
 			}
-		}
+		}		
 		catch(Exception e){
 			
 		}
+		
 		return result;
 	}
 	
@@ -317,24 +321,10 @@ public abstract class Critter {
 					int attackA = 0;
 					int attackB = 0;
 					if(fightA){	
-						if(population.get(i) instanceof BlackHole)
-						{
-							attackA = 10000;
-						}
-						else
-						{
-							attackA = Critter.getRandomInt(population.get(i).getEnergy());
-						}
+						attackA = Critter.getRandomInt(population.get(i).getEnergy());
 					}
 					if(fightB){
-						if(population.get(j) instanceof BlackHole)
-						{
-							attackB = 10000;
-						}
-						else
-						{
-							attackB = Critter.getRandomInt(population.get(j).getEnergy());
-						}
+						attackB = Critter.getRandomInt(population.get(j).getEnergy());
 					}
 					if((attackA > attackB) || (attackA == attackB)){
 						population.get(i).energy += (population.get(j).getEnergy()/2);
@@ -405,41 +395,4 @@ public abstract class Critter {
 		}
 	}
 
-	public int getX() {
-		return x_coord;
-	}
-
-	public void setX(int x_coord) {
-		this.x_coord = x_coord;
-	}
-
-	public int getY() {
-		return y_coord;
-	}
-
-	public void setY(int y_coord) {
-		this.y_coord = y_coord;
-	}
-	
-	protected final void dup(Critter offspring, int direction) {
-		if(this.getEnergy() > Params.min_reproduce_energy){
-			dir = direction;
-			
-//			if(this.getEnergy() < 30)
-//			{
-				offspring.energy = Params.start_energy/2;
-				this.setEnergy(this.getEnergy()-100);
-//			}			
-			
-			offspring.x_coord = this.x_coord;
-			offspring.y_coord = this.y_coord;
-			offspring.run(dir);
-			offspring.energy += Params.run_energy_cost;
-			babies.add(offspring);
-		}
-	}
-	
-	public void setNRG(int nrg){
-		energy = nrg;
-	}
 }
