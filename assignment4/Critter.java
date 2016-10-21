@@ -10,6 +10,7 @@
  * Slip days used: <0>
  * Fall 2016
  */
+
 package assignment4;
 
 //import necessary files
@@ -424,5 +425,4 @@ public abstract class Critter {
 			System.out.println();
 		}
 	}
-
 }
